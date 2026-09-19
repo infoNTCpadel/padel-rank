@@ -1,0 +1,14 @@
+<% const fmt = s => { const d = new Date(s); return d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); }; %>
+<h1>Invitaciones</h1>
+<% if (!invites.length) { %><p class="muted">No tienes invitaciones pendientes.</p><% } %>
+<% invites.forEach(i => { %>
+  <div class="card">
+    <p><strong><%= i.creator_name %></strong> te invita
+      <%= i.kind === 'partner' ? 'como <strong>pareja</strong>' : 'a su partido' %></p>
+    <p class="muted"><%= fmt(i.starts_at) %> · <%= i.has_court ? '🎾 ' + i.court_label : '⚠️ sin pista' %> · <%= i.character %></p>
+    <div class="row">
+      <form method="post" action="/invitacion/<%= i.match_id %>/aceptar"><button class="btn" type="submit">Aceptar</button></form>
+      <form method="post" action="/invitacion/<%= i.match_id %>/rechazar"><button class="btn sec" type="submit">Rechazar</button></form>
+    </div>
+  </div>
+<% }) %>

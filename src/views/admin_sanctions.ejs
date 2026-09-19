@@ -1,0 +1,16 @@
+<h1>Sanciones</h1>
+<div class="card">
+  <table>
+    <tr><th>Fecha</th><th>Socio</th><th>Tipo</th><th>Motivo</th><th>Por</th></tr>
+    <% sanctions.forEach(s => { %>
+      <tr>
+        <td class="muted"><%= new Date(s.created_at).toLocaleDateString('es-ES') %></td>
+        <td><%= s.user_name %></td>
+        <td><%= { points: `−${s.points_deducted} pts`, block: 'bloqueo', expel: 'expulsión' }[s.type] %></td>
+        <td class="muted"><%= s.reason %></td>
+        <td class="muted"><%= s.admin_name %></td>
+      </tr>
+    <% }) %>
+  </table>
+  <% if (!sanctions.length) { %><p class="muted">Sin sanciones.</p><% } %>
+</div>

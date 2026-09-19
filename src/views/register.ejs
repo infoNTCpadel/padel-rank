@@ -1,0 +1,31 @@
+<h1>Registro de socio</h1>
+<div class="card">
+  <form method="post" action="/registro">
+    <label>Nombre y apellidos</label>
+    <input name="name" value="<%= form.name || '' %>" required>
+    <div class="grid2">
+      <div><label>Email</label><input type="email" name="email" value="<%= form.email || '' %>" required></div>
+      <div><label>Móvil</label><input name="phone" value="<%= form.phone || '' %>" required></div>
+    </div>
+    <div class="grid2">
+      <div><label>Fecha de nacimiento</label><input type="date" name="birthdate" value="<%= form.birthdate || '' %>" required></div>
+      <div><label>Sexo</label>
+        <select name="gender" required>
+          <option value="">—</option>
+          <option value="M" <%= form.gender === 'M' ? 'selected' : '' %>>Masculino</option>
+          <option value="F" <%= form.gender === 'F' ? 'selected' : '' %>>Femenino</option>
+        </select>
+      </div>
+    </div>
+    <label>Contraseña (mín. 6 caracteres)</label>
+    <input type="password" name="password" required minlength="6">
+    <label>Nivel inicial (máximo Medio+; el sistema lo ajustará con tus resultados)</label>
+    <select name="level_index" required>
+      <% levels.forEach(l => { %>
+        <option value="<%= l.index %>" <%= String(form.level_index) === String(l.index) ? 'selected' : '' %>><%= l.label %></option>
+      <% }) %>
+    </select>
+    <p class="muted">Debes tener al menos 14 años. Tu número de teléfono identifica tu cuenta de forma única.</p>
+    <p><button class="btn" type="submit">Registrarme</button></p>
+  </form>
+</div>

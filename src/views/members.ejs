@@ -1,0 +1,25 @@
+<h1>Socios del club</h1>
+<div class="card">
+  <form method="get" action="/socios" class="row">
+    <input name="q" value="<%= q %>" placeholder="Buscar por nombre…" style="flex:1">
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+  <% users.forEach(u => { %>
+    <div class="between pill" style="margin:.4rem 0">
+      <span><strong><%= u.name %></strong> · <span class="muted"><%= levelLabel(u.level_index) %></span></span>
+      <span class="row">
+        <% if (favoriteIds.has(u.id)) { %>
+          <form class="inline" method="post" action="/favoritos/<%= u.id %>/quitar"><button class="btn small sec">★ Quitar fav</button></form>
+        <% } else { %>
+          <form class="inline" method="post" action="/favoritos/<%= u.id %>"><button class="btn small sec">☆ Fav</button></form>
+        <% } %>
+        <% if (blacklistIds.has(u.id)) { %>
+          <form class="inline" method="post" action="/lista-negra/<%= u.id %>/quitar"><button class="btn small sec">Quitar veto</button></form>
+        <% } else { %>
+          <form class="inline" method="post" action="/lista-negra/<%= u.id %>" onsubmit="return confirm('¿Añadir a tu lista negra? No verá tus partidos.')"><button class="btn small danger">Vetar</button></form>
+        <% } %>
+      </span>
+    </div>
+  <% }) %>
+  <% if (q && !users.length) { %><p class="muted">Sin resultados.</p><% } %>
+</div>

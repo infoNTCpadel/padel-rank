@@ -1,0 +1,20 @@
+<h1>Socios</h1>
+<form class="filters" method="get" action="/admin/usuarios">
+  <input name="q" value="<%= q %>" placeholder="Buscar…" style="flex:1">
+  <button class="btn sec" type="submit">Buscar</button>
+</form>
+<div class="card">
+  <table>
+    <tr><th>Socio</th><th>Nivel</th><th>Pts</th><th>Faltas</th><th>Estado</th><th></th></tr>
+    <% users.forEach(u => { %>
+      <tr>
+        <td><%= u.name %></td>
+        <td class="muted"><%= u.levelName %></td>
+        <td><%= u.points %></td>
+        <td><%= u.noShows > 0 ? '⚠️ ' + u.noShows : '—' %></td>
+        <td><%= u.expelled ? 'expulsado' : (u.blocked_until ? 'bloqueado' : 'activo') %></td>
+        <td><a href="/admin/usuarios/<%= u.id %>">Gestionar</a></td>
+      </tr>
+    <% }) %>
+  </table>
+</div>

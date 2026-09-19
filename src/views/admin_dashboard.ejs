@@ -1,0 +1,22 @@
+<h1>🛡️ Panel del club</h1>
+<div class="grid2">
+  <div class="card"><h2><%= stats.users %></h2><p class="muted">socios activos</p></div>
+  <div class="card"><h2><%= stats.matchesOpen %></h2><p class="muted">partidos abiertos</p></div>
+  <div class="card"><h2><%= stats.noShows %></h2><p class="muted">no-shows registrados</p></div>
+  <div class="card"><h2><%= stats.sanctions %></h2><p class="muted">sanciones aplicadas</p></div>
+</div>
+<div class="row" style="margin-bottom:1rem">
+  <a class="btn small" href="/admin/usuarios">Socios</a>
+  <a class="btn small" href="/admin/partidos">Partidos</a>
+  <a class="btn small" href="/admin/sanciones">Sanciones</a>
+</div>
+<div class="card">
+  <h3>Últimas sanciones</h3>
+  <% if (!recent.length) { %><p class="muted">Sin sanciones.</p><% } %>
+  <% recent.forEach(s => { %>
+    <div class="pill" style="margin-bottom:.4rem">
+      <strong><%= s.user_name %></strong> · <%= { points: `−${s.points_deducted} pts`, block: 'bloqueo temporal', expel: 'expulsión' }[s.type] %>
+      <span class="muted">· <%= s.reason %> · por <%= s.admin_name %></span>
+    </div>
+  <% }) %>
+</div>

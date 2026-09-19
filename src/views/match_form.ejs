@@ -1,0 +1,54 @@
+<h1>Crear partido</h1>
+<div class="card">
+  <form method="post" action="/partidos">
+    <div class="grid2">
+      <div><label>Fecha y hora</label><input type="datetime-local" name="starts_at" value="<%= form.starts_at || '' %>" required></div>
+      <div><label>Duración (min)</label><input type="number" name="duration_min" value="<%= form.duration_min || 90 %>" min="30" max="300"></div>
+    </div>
+    <div class="grid2">
+      <div><label>¿Tienes pista?</label>
+        <select name="has_court"><option value="0">No</option><option value="1" <%= form.has_court === '1' ? 'selected' : '' %>>Sí</option></select>
+      </div>
+      <div><label>Nº de pista</label><input name="court_label" value="<%= form.court_label || '' %>" placeholder="Ej. Pista 3"></div>
+    </div>
+    <label>Visibilidad</label>
+    <select name="visibility" id="vis" required>
+      <option value="open">Abierto: cualquier socio</option>
+      <option value="level">Por nivel: solo un rango de nivel</option>
+      <option value="favorites">Para favoritos: solo mis favoritos</option>
+      <option value="invited">Con invitados: solo invitados (máx. 3)</option>
+    </select>
+    <div class="grid2" id="rango" style="display:none">
+      <div><label>Nivel mínimo (1 = mejor)</label><input type="number" name="level_min" min="1" max="18" value="1"></div>
+      <div><label>Nivel máximo (18 = peor)</label><input type="number" name="level_max" min="1" max="18" value="18"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Sexo</label>
+        <select name="gender"><option value="X">Mixto</option><option value="M">Masculino</option><option value="F">Femenino</option></select>
+      </div>
+      <div><label>Formación de parejas</label>
+        <select name="formation"><option value="sorteo">Por sorteo (en la pista)</option><option value="pareja">Con pareja (se publica al confirmar)</option></select>
+      </div>
+    </div>
+    <div id="parejaBox" style="display:none">
+      <label>Tu pareja</label>
+      <select name="partner_id">
+        <option value="">— Elige —</option>
+        <% users.forEach(u => { %><option value="<%= u.id %>"><%= u.name %></option><% }) %>
+      </select>
+      <p class="muted">El partido se publicará cuando tu pareja confirme la invitación.</p>
+    </div>
+    <label>Carácter</label>
+    <select name="character">
+      <option value="amistoso">Amistoso (no mueve ranking)</option>
+      <option value="torneo">Torneo (suma/resta puntos ELO)</option>
+    </select>
+    <p><button class="btn" type="submit">Crear partido</button></p>
+  </form>
+</div>
+<script>
+const vis = document.getElementById('vis'), rango = document.getElementById('rango');
+vis.onchange = () => rango.style.display = vis.value === 'level' ? 'grid' : 'none';
+const form_ = document.querySelector('select[name=formation]'), pb = document.getElementById('parejaBox');
+form_.onchange = () => pb.style.display = form_.value === 'pareja' ? 'block' : 'none';
+</script>

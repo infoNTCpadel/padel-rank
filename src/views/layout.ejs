@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>Pádel Club</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">🎾 Pádel Club</a>
+  <nav>
+    <a href="/">Partidos</a>
+    <a href="/ranking">Ranking</a>
+    <% if (me) { %>
+      <a href="/mis-partidos">Mis partidos</a>
+      <a href="/invitaciones">Invitaciones</a>
+      <a href="/perfil">Perfil</a>
+      <% if (isAdmin) { %><a href="/admin" class="admin">Admin</a><% } %>
+    <% } else { %>
+      <a href="/login">Entrar</a>
+    <% } %>
+  </nav>
+</header>
+<main>
+  <% if (typeof ok !== 'undefined' && ok) { %><p class="flash ok"><%= ok %></p><% } %>
+  <% if (typeof err !== 'undefined' && err) { %><p class="flash err"><%= err %></p><% } %>
+  <%- body %>
+</main>
+<footer><small>Club Pádel · Partidos, ranking ELO y juego limpio</small></footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<h1>🏆 Ranking del club</h1>
+<div class="card">
+  <table>
+    <tr><th>#</th><th>Socio</th><th>Nivel</th><th>Puntos</th></tr>
+    <% users.forEach((u, i) => { %>
+      <tr>
+        <td><%= i + 1 %></td>
+        <td><%= u.name %></td>
+        <td><span class="badge torneo"><%= levelLabel(u.level_index) %></span></td>
+        <td><%= u.points %></td>
+      </tr>
+    <% }) %>
+  </table>
+  <% if (!users.length) { %><p class="muted">Aún no hay socios.</p><% } %>
+</div>

@@ -1,0 +1,52 @@
+<h1>Registrar resultado</h1>
+<p class="muted">Partido del <%= new Date(match.starts_at).toLocaleDateString('es-ES') %> · <%= match.character === 'torneo' ? 'de torneo: mueve el ranking ELO' : 'amistoso: no mueve ranking' %></p>
+<div class="card">
+  <form method="post" action="/partido/<%= match.id %>/resultado">
+    <div class="grid2">
+      <div>
+        <label>Equipo 1</label>
+        <select name="a1" required><% players.forEach(p => { %><option value="<%= p.id %>" <%= pairs && pairs[0][0] === p.id ? 'selected' : '' %>><%= p.name %></option><% }) %></select>
+        <select name="a2" required style="margin-top:.4rem"><% players.forEach(p => { %><option value="<%= p.id %>" <%= pairs && pairs[0][1] === p.id ? 'selected' : '' %>><%= p.name %></option><% }) %></select>
+      </div>
+      <div>
+        <label>Equipo 2</label>
+        <select name="b1" required><% players.forEach(p => { %><option value="<%= p.id %>" <%= pairs && pairs[1][0] === p.id ? 'selected' : '' %>><%= p.name %></option><% }) %></select>
+        <select name="b2" required style="margin-top:.4rem"><% players.forEach(p => { %><option value="<%= p.id %>" <%= pairs && pairs[1][1] === p.id ? 'selected' : '' %>><%= p.name %></option><% }) %></select>
+      </div>
+    </div>
+    <label>Desenlace</label>
+    <select name="outcome" required>
+      <option value="A">Victoria del equipo 1</option>
+      <option value="B">Victoria del equipo 2</option>
+      <option value="draw">Empate</option>
+      <option value="retired_a">Se retira el equipo 1 (pierde)</option>
+      <option value="retired_b">Se retira el equipo 2 (pierde)</option>
+      <option value="suspended">Suspendido (mal tiempo / falta un jugador)</option>
+    </select>
+    <label>Sets (gana quien más sets completos tenga; 3 sets = victoria automática)</label>
+    <div id="sets">
+      <div class="row setrow">
+        <input name="sets[0][a]" type="number" min="0" max="7" placeholder="Eq1" style="width:70px">
+        <span>-</span>
+        <input name="sets[0][b]" type="number" min="0" max="7" placeholder="Eq2" style="width:70px">
+        <label class="muted" style="display:inline"><input type="checkbox" name="sets[0][tb]" value="1"> tie-break</label>
+        <label class="muted" style="display:inline"><input type="checkbox" name="sets[0][complete]" value="0"> no cuenta*</label>
+      </div>
+    </div>
+    <p><button class="btn small sec" type="button" onclick="addSet()">+ Añadir set</button></p>
+    <p class="muted">* Marca "no cuenta" si el set se inició a menos de 10 minutos del final de la reserva. El 6-6 exige tie-break.</p>
+    <label>Notas (opcional)</label>
+    <textarea name="notes" rows="2" maxlength="500"></textarea>
+    <p><button class="btn" type="submit">Guardar resultado</button></p>
+  </form>
+</div>
+<script>
+let n = 1;
+function addSet() {
+  const d = document.createElement('div');
+  d.className = 'row setrow';
+  d.innerHTML = `<input name="sets[${n}][a]" type="number" min="0" max="7" placeholder="Eq1" style="width:70px"> <span>-</span> <input name="sets[${n}][b]" type="number" min="0" max="7" placeholder="Eq2" style="width:70px"> <label class="muted" style="display:inline"><input type="checkbox" name="sets[${n}][tb]" value="1"> tie-break</label> <label class="muted" style="display:inline"><input type="checkbox" name="sets[${n}][complete]" value="0"> no cuenta*</label>`;
+  document.getElementById('sets').appendChild(d);
+  n++;
+}
+</script>

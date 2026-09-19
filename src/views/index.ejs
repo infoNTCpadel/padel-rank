@@ -1,0 +1,51 @@
+<% const fmt = s => { const d = new Date(s); return d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); }; %>
+<div class="between">
+  <h1>Partidos disponibles</h1>
+  <% if (me) { %><a class="btn" href="/partidos/nuevo">+ Crear partido</a><% } %>
+</div>
+
+<% if (pendingInvites.length) { %>
+<div class="card">
+  <h3>📩 Tienes <%= pendingInvites.length %> invitación(es)</h3>
+  <% pendingInvites.forEach(i => { %>
+    <div class="between pill" style="margin-bottom:.4rem">
+      <span><strong><%= i.creator_name %></strong> te invita · <%= fmt(i.starts_at) %><%= i.kind === 'partner' ? ' · como pareja' : '' %></span>
+      <a class="btn small" href="/invitaciones">Ver</a>
+    </div>
+  <% }) %>
+</div>
+<% } %>
+
+<form class="filters" method="get" action="/">
+  <input type="date" name="fecha" value="<%= fecha %>">
+  <select name="tipo">
+    <option value="">Todos</option>
+    <option value="torneo" <%= tipo === 'torneo' ? 'selected' : '' %>>Torneo</option>
+    <option value="amistoso" <%= tipo === 'amistoso' ? 'selected' : '' %>>Amistoso</option>
+  </select>
+  <button class="btn sec" type="submit">Filtrar</button>
+</form>
+
+<% if (!matches.length) { %>
+  <p class="muted">No hay partidos disponibles con esos filtros. ¡Crea el primero!</p>
+<% } %>
+<% matches.forEach(m => { const n = playerCount(m.id); %>
+  <div class="card">
+    <div class="between">
+      <span class="match-head"><%= fmt(m.starts_at) %></span>
+      <span>
+        <span class="badge <%= m.character %>"><%= m.character %></span>
+        <% if (m.gender === 'X') { %><span class="badge mixto">mixto</span><% } else { %><span class="badge"><%= m.gender === 'M' ? 'masc.' : 'fem.' %></span><% } %>
+        <% if (m.formation === 'sorteo') { %><span class="badge">sorteo en pista</span><% } %>
+      </span>
+    </div>
+    <p class="muted" style="margin:.4rem 0">
+      Organiza <strong><%= m.creator_name %></strong> ·
+      <%= m.has_court ? '🎾 ' + m.court_label : '⚠️ sin pista' %> ·
+      <%= n %>/4 jugadores ·
+      <%= { open: 'abierto', level: 'por nivel', favorites: 'favoritos', invited: 'con invitados' }[m.visibility] %>
+    </p>
+    <a class="btn small sec" href="/partido/<%= m.id %>">Ver detalle</a>
+  </div>
+<% }) %>
+<% if (!me) { %><p class="muted"><a href="/registro">Regístrate</a> o <a href="/login">entra</a> para apuntarte a partidos.</p><% } %>

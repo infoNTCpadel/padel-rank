@@ -1,0 +1,18 @@
+<% const fmt = s => { const d = new Date(s); return d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); }; %>
+<h1>Mis partidos</h1>
+<% if (!rows.length) { %><p class="muted">Aún no te has apuntado a ningún partido.</p><% } %>
+<% rows.forEach(r => { %>
+  <div class="card">
+    <div class="between">
+      <span class="match-head"><%= fmt(r.starts_at) %></span>
+      <span class="badge <%= r.character %>"><%= r.character %></span>
+    </div>
+    <p class="muted" style="margin:.4rem 0">
+      Organiza <%= r.creator_name %> · <%= r.has_court ? '🎾 ' + r.court_label : '⚠️ sin pista' %> ·
+      <%= playerCount(r.id) %>/4 · <%= r.status === 'closed' ? 'finalizado' : r.status === 'cancelled' ? 'cancelado' : 'activo' %>
+      <% if (r.is_substitute) { %>· <span class="badge">sustituto</span><% } %>
+      <% if (r.state === 'withdrawn') { %>· <span class="badge">baja</span><% } %>
+    </p>
+    <a class="btn small sec" href="/partido/<%= r.id %>">Ver detalle</a>
+  </div>
+<% }) %>

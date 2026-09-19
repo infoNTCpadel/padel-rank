@@ -1,0 +1,176 @@
+<% const fmt = s => { const d = new Date(s); return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); }; %>
+<% const visName = { open: 'Abierto', level: 'Por nivel', favorites: 'Para favoritos', invited: 'Con invitados' }; %>
+
+<div class="between">
+  <h1 style="margin-bottom:.2rem">Partido</h1>
+  <span>
+    <span class="badge <%= match.character %>"><%= match.character %></span>
+    <% if (match.status === 'full') { %><span class="badge lleno">completo</span><% } %>
+    <% if (match.status === 'cancelled') { %><span class="badge">cancelado</span><% } %>
+    <% if (match.status === 'closed') { %><span class="badge">finalizado</span><% } %>
+    <% if (match.status === 'draft') { %><span class="badge">pendiente de pareja</span><% } %>
+  </span>
+</div>
+<p class="match-head"><%= fmt(match.starts_at) %></p>
+
+<div class="card">
+  <dl class="kv">
+    <dt>Organiza</dt><dd><%= match.creator_name %></dd>
+    <dt>Pista</dt><dd><%= match.has_court ? '✅ ' + match.court_label : '⚠️ Sin pista asignada' %></dd>
+    <dt>Duración</dt><dd><%= match.duration_min %> min</dd>
+    <dt>Visibilidad</dt><dd><%= visName[match.visibility] %><% if (match.visibility === 'level') { %> (niveles <%= match.level_min %>–<%= match.level_max %>)<% } %></dd>
+    <dt>Sexo</dt><dd><%= match.gender === 'X' ? 'Mixto' : match.gender === 'M' ? 'Masculino' : 'Femenino' %></dd>
+    <dt>Parejas</dt><dd><%= match.formation === 'pareja' ? 'Con pareja' : 'Por sorteo en pista' %></dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>Jugadores (<%= players.length %>/4)</h3>
+  <% players.forEach(p => { %>
+    <div class="between pill" style="margin-bottom:.4rem">
+      <span><strong><%= p.name %></strong> <span class="muted"><%= levelLabel(p.level_index) %></span>
+        <% if (p.role === 'creator') { %><span class="badge">organizador</span><% } %>
+        <% if (p.is_substitute) { %><span class="badge">sustituto</span><% } %>
+        <% if (p.seeking_substitute) { %><span class="badge lleno">busca sustituto</span><% } %>
+      </span>
+      <% if (me && p.id !== me.id && seekers.length === 0) { %><span></span><% } %>
+    </div>
+  <% }) %>
+  <% for (let i = players.length; i < 4; i++) { %><div class="pill muted" style="margin-bottom:.4rem">Plaza libre</div><% } %>
+
+  <% if (me && !myRow && match.status === 'open') { %>
+    <% if (joinCheck.ok) { %>
+      <form method="post" action="/partido/<%= match.id %>/apuntarse"><button class="btn" type="submit">Apuntarme</button></form>
+    <% } else { %><p class="muted">⚠️ <%= joinCheck.reason %></p><% } %>
+  <% } %>
+
+  <% if (myRow && myRow.state === 'confirmed' && myRow.role !== 'creator' && match.status !== 'closed' && match.status !== 'cancelled') { %>
+    <div class="row" style="margin-top:.6rem">
+      <% if (withdrawMode === 'free') { %>
+        <form method="post" action="/partido/<%= match.id %>/baja" onsubmit="return confirm('¿Confirmas la baja?')"><button class="btn sec" type="submit">Darme de baja</button></form>
+      <% } else if (!myRow.seeking_substitute) { %>
+        <form method="post" action="/partido/<%= match.id %>/sustituto/buscar"><button class="btn sec" type="submit">🔄 Buscar sustituto</button></form>
+        <span class="muted">Quedan menos de 3 días: no puedes borrarte sin sustituto.</span>
+      <% } else { %>
+        <form method="post" action="/partido/<%= match.id %>/sustituto/cancelar"><button class="btn small sec" type="submit">Cancelar búsqueda</button></form>
+        <span class="muted">Tu plaza está ofrecida como sustitución.</span>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (me && !myRow && seekers.length && match.status !== 'closed' && match.status !== 'cancelled') { %>
+    <h3>Plazas con sustituto buscado</h3>
+    <% seekers.forEach(s => { %>
+      <form method="post" action="/partido/<%= match.id %>/sustituto/ocupar" class="between pill" style="margin-bottom:.4rem">
+        <span>Sustituir a <strong><%= s.name %></strong></span>
+        <input type="hidden" name="seeker_id" value="<%= s.id %>">
+        <button class="btn small" type="submit">Ocupar plaza</button>
+      </form>
+    <% }) %>
+  <% } %>
+</div>
+
+<% if (myInvite && myInvite.kind === 'partner' && match.status === 'draft') { %>
+<div class="card">
+  <h3>🤝 <%= match.creator_name %> te propone como pareja</h3>
+  <div class="row">
+    <form method="post" action="/invitacion/<%= match.id %>/aceptar"><button class="btn" type="submit">Aceptar</button></form>
+    <form method="post" action="/invitacion/<%= match.id %>/rechazar"><button class="btn sec" type="submit">Rechazar</button></form>
+  </div>
+</div>
+<% } %>
+
+<% if (isCreator && match.visibility === 'invited' && match.status !== 'closed' && match.status !== 'cancelled') { %>
+<div class="card">
+  <h3>✉️ Invitados (máx. 3)</h3>
+  <% invites.filter(i => i.kind === 'invite').forEach(i => { %>
+    <div class="pill muted" style="margin-bottom:.3rem"><%= i.name %> · <%= i.state === 'pending' ? 'pendiente' : i.state %></div>
+  <% }) %>
+  <% if (invites.filter(i => i.kind === 'invite').length < 3) { %>
+  <form method="post" action="/partido/<%= match.id %>/invitar" class="row">
+    <select name="user_id" style="flex:1" required>
+      <option value="">— Elige socio —</option>
+      <% candidates.forEach(c => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+    </select>
+    <button class="btn small" type="submit">Invitar</button>
+  </form>
+  <% } %>
+</div>
+<% } %>
+
+<% if (match.formation === 'sorteo' && players.length === 4 && !result) { %>
+<div class="card">
+  <h3>🎲 Parejas del sorteo</h3>
+  <% if (pairs) { %>
+    <% pairs.pairs.forEach((pr, i) => { %>
+      <p><strong>Pareja <%= i + 1 %>:</strong> <%= pr.map(id => (players.find(p => p.id === id) || {}).name).join(' + ') %></p>
+    <% }) %>
+  <% } else if (suggestion) { %>
+    <p class="muted">Sugerencia: <%= suggestion.pairs.map(pr => pr.map(p => p.name).join(' + ')).join('  vs  ') %></p>
+    <% if (suggestion.mode === 'mixed') { %><p class="muted">Mixto: un hombre y una mujer por pareja (sorteo).</p><% } %>
+  <% } %>
+  <div class="row">
+    <% if (suggestion && suggestion.mode === 'ranked' && me && me.id === suggestion.bestId) { %>
+      <form method="post" action="/partido/<%= match.id %>/parejas"><input type="hidden" name="action" value="elegir"><button class="btn small" type="submit">Jugar con el de menor ranking</button></form>
+    <% } %>
+    <% if (isCreator || isAdmin) { %>
+      <form method="post" action="/partido/<%= match.id %>/parejas"><input type="hidden" name="action" value="sugerencia"><button class="btn small sec" type="submit">Confirmar sugerencia</button></form>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<% if (!result && canRegister) { %>
+  <a class="btn" href="/partido/<%= match.id %>/resultado">📝 Registrar resultado</a>
+<% } %>
+
+<% if (result) { %>
+<div class="card">
+  <h3>🏁 Resultado</h3>
+  <% const ta = JSON.parse(result.team_a), tb = JSON.parse(result.team_b); const nm = id => (players.find(p => p.id === id) || { name: '?' }).name; %>
+  <p><strong><%= ta.map(nm).join(' + ') %></strong> vs <strong><%= tb.map(nm).join(' + ') %></strong></p>
+  <% const oc = { A: 'Victoria del primer equipo', B: 'Victoria del segundo equipo', draw: 'Empate', retired_a: 'Retirada del primer equipo (pierde)', retired_b: 'Retirada del segundo equipo (pierde)', suspended: 'Suspendido (sin resultado)' }; %>
+  <p><span class="badge torneo"><%= oc[result.outcome] %></span></p>
+  <% if (result.sets) { const sets = JSON.parse(result.sets); %>
+    <p class="muted">Sets: <%= sets.map(s => `${s.a}-${s.b}${s.tb ? ' (TB)' : ''}${s.complete ? '' : ' *'}`).join(' · ') %></p>
+    <% if (sets.some(s => !s.complete)) { %><p class="muted">* Set no computado (iniciado a menos de 10 min del final).</p><% } %>
+  <% } %>
+  <% if (result.notes) { %><p class="muted"><%= result.notes %></p><% } %>
+  <% if (result.elo_json) { const deltas = JSON.parse(result.elo_json); %>
+    <h3>Movimientos ELO</h3>
+    <table><tr><th>Jugador</th><th>Puntos</th><th>Δ</th></tr>
+    <% deltas.forEach(d => { %>
+      <tr><td><%= nm(d.userId) %></td><td><%= d.oldPoints %> → <%= d.newPoints %></td><td style="color:<%= d.delta >= 0 ? 'var(--acc)' : 'var(--bad)' %>"><%= d.delta >= 0 ? '+' : '' %><%= d.delta %></td></tr>
+    <% }) %></table>
+  <% } %>
+  <p class="muted">Registrado por <%= (players.find(p => p.id === result.registered_by) || { name: '?' }).name %></p>
+</div>
+<% } %>
+
+<% if ((isCreator || isAdmin) && players.length && match.status !== 'cancelled') { %>
+<div class="card">
+  <h3>✅ Control de asistencia</h3>
+  <form method="post" action="/partido/<%= match.id %>/asistencia">
+    <table>
+      <tr><th>Jugador</th><th>Asistió</th><th>Faltó</th><th>Sustituto</th></tr>
+      <% const attMap = {}; attendance.forEach(a => attMap[a.user_id] = a); %>
+      <% players.forEach(p => { const a = attMap[p.id] || {}; %>
+        <tr>
+          <td><%= p.name %></td>
+          <td><input type="radio" name="att_<%= p.id %>" value="1" <%= a.attended === 1 ? 'checked' : '' %>></td>
+          <td><input type="radio" name="att_<%= p.id %>" value="0" <%= a.attended === 0 ? 'checked' : '' %>></td>
+          <td><input type="checkbox" name="sub_<%= p.id %>" value="1" <%= a.has_substitute ? 'checked' : '' %> title="Envió un sustituto"></td>
+        </tr>
+      <% }) %>
+    </table>
+    <p><button class="btn small" type="submit">Guardar asistencia</button></p>
+    <p class="muted">Marca "Faltó" sin sustituto para registrar un no-show (el admin podrá sancionar).</p>
+  </form>
+</div>
+<% } %>
+
+<% if ((isCreator || isAdmin) && match.status !== 'closed' && match.status !== 'cancelled') { %>
+  <form method="post" action="/partido/<%= match.id %>/cancelar" onsubmit="return confirm('¿Cancelar el partido?')">
+    <button class="btn danger" type="submit">Cancelar partido</button>
+  </form>
+<% } %>

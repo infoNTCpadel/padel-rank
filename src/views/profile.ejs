@@ -1,0 +1,59 @@
+<h1>Mi perfil</h1>
+<div class="card">
+  <div class="between">
+    <div>
+      <h2 style="margin:0"><%= user.name %></h2>
+      <p class="muted" style="margin:.2rem 0"><%= user.email %> · <%= user.phone %></p>
+      <p><span class="badge torneo"><%= levelName %></span> <span class="muted"><%= user.points %> pts · categoría <%= category %></span></p>
+      <% if (noShows > 0) { %><p class="muted">⚠️ Faltas sancionadas: <strong><%= noShows %></strong> (a la segunda puedes ser expulsado)</p><% } %>
+    </div>
+  </div>
+  <form method="post" action="/perfil">
+    <div class="grid2">
+      <div><label>Nombre</label><input name="name" value="<%= user.name %>" required></div>
+      <div><label>Email</label><input type="email" name="email" value="<%= user.email %>" required></div>
+    </div>
+    <label>Móvil</label>
+    <input name="phone" value="<%= user.phone %>" required>
+    <p><button class="btn small" type="submit">Guardar cambios</button>
+    <a class="btn small sec" href="/socios">Buscar socios</a></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3>⭐ Mis favoritos (<%= favorites.length %>)</h3>
+  <p class="muted">Tus partidos "para favoritos" solo los verán ellos.</p>
+  <% favorites.forEach(f => { %>
+    <div class="between pill" style="margin-bottom:.4rem">
+      <span><%= f.name %> · <%= levelLabel(f.level_index) %></span>
+      <form class="inline" method="post" action="/favoritos/<%= f.id %>/quitar"><button class="btn small sec">Quitar</button></form>
+    </div>
+  <% }) %>
+  <% if (!favorites.length) { %><p class="muted">Aún no tienes favoritos.</p><% } %>
+</div>
+
+<div class="card">
+  <h3>🚫 Mi lista negra (<%= blacklist.length %>)</h3>
+  <p class="muted">Quien esté aquí no verá tus partidos ni podrá apuntarse o ser invitado a ellos.</p>
+  <% blacklist.forEach(b => { %>
+    <div class="between pill" style="margin-bottom:.4rem">
+      <span><%= b.name %></span>
+      <form class="inline" method="post" action="/lista-negra/<%= b.id %>/quitar"><button class="btn small sec">Quitar</button></form>
+    </div>
+  <% }) %>
+  <% if (!blacklist.length) { %><p class="muted">Lista vacía.</p><% } %>
+</div>
+
+<div class="card">
+  <h3>⚙️ Cuenta</h3>
+  <form method="post" action="/logout" class="inline"><button class="btn sec">Cerrar sesión</button></form>
+  <details style="margin-top:1rem">
+    <summary class="muted">Eliminar mi cuenta (baja)</summary>
+    <form method="post" action="/baja" style="margin-top:.6rem">
+      <p class="muted">Tu teléfono se conservará anonimizado para evitar fraudes: no podrás volver a registrarte con él.</p>
+      <label>Contraseña</label><input type="password" name="password" required>
+      <label>Escribe ELIMINAR para confirmar</label><input name="confirm" required>
+      <p><button class="btn danger" type="submit">Eliminar cuenta</button></p>
+    </form>
+  </details>
+</div>

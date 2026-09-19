@@ -1,0 +1,58 @@
+<h1><%= user.name %></h1>
+<p class="muted"><%= user.email %> · <%= user.phone %> · <%= levelName %> (<%= user.points %> pts)</p>
+<% if (noShowCount > 0) { %><p>⚠️ <strong>Faltas sancionadas: <%= noShowCount %></strong> — a la segunda falta sin sustituto puede ser expulsado.</p><% } %>
+<% if (user.expelled) { %><p><span class="badge">EXPULSADO</span></p><% } %>
+<% if (user.blocked_until) { %><p><span class="badge lleno">Bloqueado hasta <%= user.blocked_until %></span></p><% } %>
+
+<% if (noShows.length) { %>
+<div class="card">
+  <h3>No-shows sin sancionar o registrados</h3>
+  <% noShows.forEach(n => { %>
+    <div class="pill" style="margin-bottom:.4rem">
+      Partido <a href="/partido/<%= n.match_id %>">#<%= n.match_id %></a> · <%= new Date(n.starts_at).toLocaleDateString('es-ES') %>
+    </div>
+  <% }) %>
+</div>
+<% } %>
+
+<div class="card">
+  <h3>Sancionar</h3>
+  <form method="post" action="/admin/usuarios/<%= user.id %>/sancionar">
+    <label>Tipo de sanción</label>
+    <select name="type" id="stype">
+      <option value="points">Restar puntos (máx. 3)</option>
+      <option value="block">Bloqueo temporal de la app</option>
+      <option value="expel">Expulsión de la competición</option>
+    </select>
+    <div class="grid2">
+      <div><label>Puntos a restar</label><input type="number" name="points" min="1" max="3" value="1"></div>
+      <div><label>Bloqueo hasta</label><input type="datetime-local" name="until"></div>
+    </div>
+    <label>ID de partido (opcional)</label>
+    <input type="number" name="match_id" placeholder="Ej. 12">
+    <label>Motivo *</label>
+    <input name="reason" required placeholder="Ej. No-show sin sustituto el 12/10">
+    <p><button class="btn danger" type="submit" onclick="return confirm('¿Aplicar sanción?')">Aplicar sanción</button></p>
+  </form>
+  <% if (user.expelled || user.blocked_until) { %>
+    <form method="post" action="/admin/usuarios/<%= user.id %>/perdonar" class="inline">
+      <button class="btn sec" type="submit">Levantar sanción</button>
+    </form>
+  <% } %>
+  <form method="post" action="/admin/usuarios/<%= user.id %>/admin" class="inline" style="margin-left:.5rem">
+    <input type="hidden" name="action" value="add">
+    <button class="btn small sec" type="submit">Hacer admin</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Historial de sanciones</h3>
+  <% if (!sanctions.length) { %><p class="muted">Sin sanciones.</p><% } %>
+  <% sanctions.forEach(s => { %>
+    <div class="pill" style="margin-bottom:.4rem">
+      <strong><%= { points: `−${s.points_deducted} pts`, block: 'bloqueo', expel: 'expulsión' }[s.type] %></strong>
+      <span class="muted"><%= s.reason %> · por <%= s.admin_name %> · <%= new Date(s.created_at).toLocaleDateString('es-ES') %></span>
+    </div>
+  <% }) %>
+</div>
+<p><a href="/admin/usuarios">← Volver a socios</a></p>

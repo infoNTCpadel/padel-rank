@@ -1,0 +1,17 @@
+<% const fmt = s => new Date(s).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' ' + new Date(s).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); %>
+<h1>Partidos</h1>
+<div class="card">
+  <table>
+    <tr><th>ID</th><th>Fecha</th><th>Organiza</th><th>Tipo</th><th>Estado</th><th></th></tr>
+    <% matches.forEach(m => { %>
+      <tr>
+        <td><%= m.id %></td>
+        <td><%= fmt(m.starts_at) %></td>
+        <td><%= m.creator_name %></td>
+        <td class="muted"><%= m.character %></td>
+        <td><%= m.status %></td>
+        <td><a href="/partido/<%= m.id %>">Ver</a></td>
+      </tr>
+    <% }) %>
+  </table>
+</div>
