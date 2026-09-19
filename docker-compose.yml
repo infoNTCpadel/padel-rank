@@ -1,5 +1,5 @@
 services:
-  club:
+  padel-rank:
     build: .
     container_name: padel-rank
     restart: unless-stopped
