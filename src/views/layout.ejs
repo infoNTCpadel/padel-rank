@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>Pádel Club</title>
+<title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>Padel Rank</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🎾 Pádel Club</a>
+  <a class="brand" href="/">🎾 Padel Rank</a>
   <nav>
     <a href="/">Partidos</a>
     <a href="/ranking">Ranking</a>
@@ -27,6 +27,6 @@
   <% if (typeof err !== 'undefined' && err) { %><p class="flash err"><%= err %></p><% } %>
   <%- body %>
 </main>
-<footer><small>Club Pádel · Partidos, ranking ELO y juego limpio</small></footer>
+<footer><small>Padel Rank · Partidos, ranking ELO y juego limpio</small></footer>
 </body>
 </html>

@@ -1,10 +1,10 @@
 services:
   club:
     build: .
-    container_name: club-padel
+    container_name: padel-rank
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     env_file:
       - .env
     volumes:

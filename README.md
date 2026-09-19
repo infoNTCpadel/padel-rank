@@ -1,4 +1,4 @@
-# Club Pádel — partidos, ranking ELO y torneos
+# Padel Rank — partidos, ranking ELO y torneos
 
 Aplicación web para un club de pádel: los socios crean partidos (amistosos o de
 torneo), se apuntan, registran resultados y compiten en un ranking ELO con

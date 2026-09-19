@@ -68,4 +68,4 @@ app.get('/ranking', (req, res) => {
   run('INSERT OR IGNORE INTO admins(user_id) VALUES (?)', user.id);
 })();
 
-app.listen(PORT, () => console.log(`Club Pádel escuchando en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Padel Rank escuchando en puerto ${PORT}`));
